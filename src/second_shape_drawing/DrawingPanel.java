@@ -6,6 +6,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
 
@@ -18,7 +20,36 @@ public class DrawingPanel extends JPanel
     DrawingPanel()
     {
         super();
+        
+        MyMouseHandler mmh = new MyMouseHandler();
+        addMouseListener(mmh);
+        addMouseMotionListener(mmh);
     }
+    
+    class MyMouseHandler extends MouseAdapter
+    {        
+        public void mousePressed(MouseEvent e)
+        {
+            drawing.mousePressed(e.getPoint());
+            repaint();
+        }
+        public void mouseReleased(MouseEvent e)
+        {
+            drawing.mouseReleased(e.getPoint());
+            repaint();
+        }
+        public void mouseDragged(MouseEvent e)
+        {
+            drawing.mouseDragged(e.getPoint());
+            repaint();
+        }
+        public void mouseClicked(MouseEvent e)
+        {
+        	drawing.mouseClicked(e.getPoint());
+        	repaint();
+        }
+    }
+    
     
     public void paint(Graphics screen)
     {
@@ -44,51 +75,6 @@ public class DrawingPanel extends JPanel
     	
     	// Draw the buffer image to the screen
         screen.drawImage(offScreenImage, 0, 0, this);
-    }
-    
-    // Process commands
-    public boolean commandHandler(char cmd)
-    {
-		switch(cmd)
-		{
-		case 'r':
-			this.drawing.setDrawType(DrawType.rectangle);
-			break;
-		case 'o':
-			this.drawing.setDrawType(DrawType.oval);
-			break;
-		case 'l':
-			this.drawing.setDrawType(DrawType.line);
-			break;
-		case 's':
-			this.drawing.setDrawType(DrawType.scribble);
-			break;
-		case 'p':
-		case 'a':
-			this.drawing.setDrawType(DrawType.polygon);
-			break;
-		case 'q':
-			return false;
-		case 'f':
-			this.drawing.setFilled(true);
-			break;
-		case 'd':
-			this.drawing.setFilled(false);
-			break;
-		case 'b':
-			this.drawing.setColor(Color.blue);
-			break;
-		case 'm':
-			this.drawing.setColor(Color.magenta);
-			break;
-		case 'g':
-			this.drawing.setColor(Color.green);
-			break;
-		default: // '?' comes here
-			break;
-		}
-		this.repaint();
-		return true;
     }
 }
 
