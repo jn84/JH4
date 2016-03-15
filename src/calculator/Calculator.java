@@ -10,6 +10,7 @@ import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigInteger;
 import java.util.StringTokenizer;
 
 import javax.swing.JFrame;
@@ -56,6 +57,8 @@ public class Calculator extends JFrame implements ActionListener
 		this.add(buttonPanel, BorderLayout.CENTER);
 		
 		setVisible(true);
+		
+		numericTextField.setText(math.getCurrentOutput());
 	}
 	
 	
@@ -103,25 +106,42 @@ public class Calculator extends JFrame implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		String cmd = ((CalculatorButton)e.getSource()).getText();
-		math.commitCommand(cmd);
+		math.commitCommand(cmd, numericTextField.getText());
+		numericTextField.setText(math.getCurrentOutput());
 	}	
 	
 	private class SimpleMath
 	{
+		boolean isResult;
+		
 		CommandType lastCommandType = null;
-		String lastCommand = "";
-		String lastResult = "";
-		String currentOutput = "0";
 		
-		int firstNumber = 0;
-		int secondNumber = 0;
-		String oper = "";
+		String currentOutput,
+			   firstNumber, 
+			   secondNumber, 
+			   oper;
 		
-		public SimpleMath()	{}
-		
-		public String commitCommand(String command, int value)
+		public SimpleMath()
 		{
-			lastCommand = command;
+			clearCommand();
+		}
+		
+		public String commitCommand(String command, String value)
+		{
+//			System.out.println("Command: " + command + "      " + "Field Value: " + value);
+//			
+//			System.out.println("First: " + firstNumber);
+//			System.out.println("Second: " + secondNumber);
+//			System.out.println("Operator: " + oper);
+//			if (lastCommandType != null)
+//				System.out.println("Last Command: " + lastCommandType.name());
+//			else
+//				System.out.println("Last Command: null");
+			
+			// We already have a result. Do nothing else until a clear command has been issued.
+			if (isResult && command != "clear")
+				return currentOutput;
+			
 			switch (command)
 			{
 			case "0":
@@ -134,73 +154,148 @@ public class Calculator extends JFrame implements ActionListener
 			case "7":
 			case "8":
 			case "9":
-				System.out.println("Entered number: " + command);
-				numberCommand();
-				lastCommandType = CommandType.NUMBER;
+				numberCommand(command, value);
 				return currentOutput;
+				
 			case "+":
 			case "-":
 			case "/":
 			case "*":
-				System.out.println("Entered Operator: " + command);
-				operatorCommand();
-				lastCommandType = CommandType.OPERATOR;
+				operatorCommand(command, value);
 				return currentOutput;
+				
 			case "=":
-				System.out.println("Asked for Result ( = )");
-				equalityCommand();
-				lastCommandType = CommandType.EQUAL;
+				solveCommand(command, value);
 				return currentOutput;
+				
 			case "clear":
-				System.out.println("Cleared everything");
 				clearCommand();
 				return currentOutput;
+				
+			// Should never be reached. Added to quiet down compiler errors
 			default:
 				return "0";
 			}
 		}
 		
-		private void numberCommand(int value)
+		private void numberCommand(String command, String value)
+		{
+			// First button pressed (first or second number)
+			if (lastCommandType == null || lastCommandType == CommandType.OPERATOR)
+			{
+				currentOutput = command;
+				lastCommandType = CommandType.NUMBER;
+				return;
+			}
+			
+			// Last command was a number -> Append new command to value and update output
+			if (lastCommandType == CommandType.NUMBER)
+				currentOutput = value + command;
+		}
+		
+		private void operatorCommand(String command, String value)
 		{
 			if (lastCommandType == null)
+				return;
+			
+			// Can change operation type if no other commands were issued
+			if (lastCommandType == CommandType.OPERATOR)
 			{
-				
+				oper = command;
+				return;
 			}
 			
-			if (lastCommandType == CommandType.NUMBER)
+			// If at least one number has been entered and we don't already have an operator
+			if (lastCommandType == CommandType.NUMBER && oper == "")
 			{
+				// Commit the first value
+				firstNumber = value;
 				
+				// Commit the operation
+				oper = command;
+				
+				lastCommandType = CommandType.OPERATOR;
+				
+				// Reset the output to 0
+				currentOutput = "0";
+				return;
 			}
-			
-			if ()
 		}
 		
-		private void operatorCommand(int value)
+		private void solveCommand(String command, String value)
 		{
+			// No other commands have been entered, or no operator has been set
+			if (lastCommandType == null || oper == "")
+				return;
 			
-		}
-		
-		private void equalityCommand(int value)
-		{
+			// Commit the second value
+			secondNumber = value;
 			
+			// Perform the actual operation
+			performOperation();
+			
+			lastCommandType = CommandType.EQUAL;
 		}
 		
 		private void clearCommand()
 		{
-			lastCommandType = null;
-			lastCommand = "";
-			lastResult = "";
-			currentOutput = "0";
+			isResult = false;
 			
-			firstNumber = 0;
-			secondNumber = 0;
-			oper = null;
+			lastCommandType = null;
+
+			currentOutput = "0";
+			firstNumber = "0";
+			secondNumber = "0";
+			oper = "";
+		}
+		
+		private void performOperation()
+		{
+			BigInteger tempResult = null, 
+					   tempFirst = null, 
+					   tempSecond = null;
+			
+			// Shouldn't ever throw under normal use
+			try
+			{
+				
+				tempFirst = new BigInteger(firstNumber);
+				tempSecond = new BigInteger(secondNumber);
+			}
+			catch (NumberFormatException e)
+			{
+				// Debug code
+				System.out.println("Error converting String to int (performOperation)");
+			}
+
+			switch (oper)
+			{
+			case "+":
+				tempResult = tempFirst.add(tempSecond); 
+				break;
+			case "-":
+				tempResult = tempFirst.subtract(tempSecond);
+				break;
+			case "*":
+				tempResult = tempFirst.multiply(tempSecond);
+				break;
+			case "/":
+				if (tempSecond.compareTo(BigInteger.ZERO) == 0)
+				{
+					currentOutput = "ERROR: Divide by 0";
+					return;
+				}
+				tempResult = tempFirst.divide(tempSecond);
+				break;
+			}
+			isResult = true;
+			currentOutput = tempResult.toString();
 		}
 		
 		
-		public String getLastResult()
+		public String getCurrentOutput()
 		{
-			return lastResult;
+			return currentOutput;
 		}
 	}
 	
