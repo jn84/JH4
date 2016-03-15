@@ -2,23 +2,29 @@ package second_shape_drawing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.border.Border;
 
 public class DrawingProg2 extends JFrame implements ActionListener{
 
 	DrawingPanel drawingPanel = new DrawingPanel();
 	JCheckBox filled = new JCheckBox("filled");
+	
 
 	DrawingProg2()
 	{
 		super("My Drawing Program");
 
-		String[] colors = {"red", "green", "blue"};
-		String[] shapes1 = {"rectangle", "oval","line","scribble"};
+		String[] colors = {"Red", "Green", "Blue"};
+		String[] shapes1 = {"Rectangle", "Oval", "Line", "Scribble"};
 
 		setSize(800, 400);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -36,6 +42,18 @@ public class DrawingProg2 extends JFrame implements ActionListener{
 
 		setLayout(new BorderLayout());
 
+		JPanel stylePanel = new JPanel(new FlowLayout());
+		stylePanel.add(filled);
+		for (String elem : shapes)
+			stylePanel.add(new JRadioButton(elem));
+		
+		JPanel colorPanel =  new JPanel(new GridLayout(0, 1));
+		for (String elem : colors)
+			colorPanel.add(new JRadioButton(elem));
+		
+		this.add(drawingPanel, BorderLayout.CENTER);
+		this.add(stylePanel, BorderLayout.NORTH);
+		this.add(colorPanel, BorderLayout.WEST);
 		/*
 	        drawingPanel goes in the CENTER
 	        Create a JPanel with a FlowLayout for the NORTH.
@@ -50,13 +68,14 @@ public class DrawingProg2 extends JFrame implements ActionListener{
 
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) 
+	{
 		DrawingProg2 dp = new DrawingProg2();
-
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent actionEvent) {
+	public void actionPerformed(ActionEvent actionEvent) 
+	{
 		String action = actionEvent.getActionCommand();
 		System.out.println(action);
 
