@@ -95,7 +95,7 @@ public class Calculator extends JFrame implements ActionListener
 		}
 	}
 	
-	public static void main(String[] args)
+	public void main(String[] args)
 	{
 		Calculator calculator = new Calculator();
 	}
@@ -128,17 +128,6 @@ public class Calculator extends JFrame implements ActionListener
 		
 		public String commitCommand(String command, String value)
 		{
-//			System.out.println("Command: " + command + "      " + "Field Value: " + value);
-//			
-//			System.out.println("First: " + firstNumber);
-//			System.out.println("Second: " + secondNumber);
-//			System.out.println("Operator: " + oper);
-//			if (lastCommandType != null)
-//				System.out.println("Last Command: " + lastCommandType.name());
-//			else
-//				System.out.println("Last Command: null");
-			
-			// We already have a result. Do nothing else until a clear command has been issued.
 			if (isResult && command != "clear")
 				return currentOutput;
 			
