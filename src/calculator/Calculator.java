@@ -2,30 +2,23 @@ package calculator;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
-import java.util.StringTokenizer;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-import javax.swing.text.AttributeSet.FontAttribute;
-import javax.swing.text.StyleConstants.FontConstants;
 
 import calculator.CalcButtonData;
 
 public class Calculator extends JFrame implements ActionListener
 {
 	private final Font globalFont = new Font("Serif", Font.BOLD, 64);
+	private final Dimension dim = new Dimension(800, 800);
 	
 	private JPanel buttonPanel = null;
 	private JTextField numericTextField = null;
@@ -50,7 +43,7 @@ public class Calculator extends JFrame implements ActionListener
 		numericTextField.setFont(globalFont);
 		this.add(numericTextField, BorderLayout.NORTH);
 		
-		JPanel buttonPanel = new JPanel(new GridLayout(4, 4, 4, 4));
+		buttonPanel = new JPanel(new GridLayout(4, 4, 4, 4));
 		for (CalculatorButton button : calcButtons)
 			buttonPanel.add(button);
 		

@@ -2,24 +2,17 @@ package calculator_applet;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
-import java.util.StringTokenizer;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-import javax.swing.text.AttributeSet.FontAttribute;
-import javax.swing.text.StyleConstants.FontConstants;
 
 import calculator.CalcButtonData;
 import calculator.CalculatorButton;
@@ -36,10 +29,8 @@ public class Calculator extends JApplet implements ActionListener
 		
 	public Calculator()
 	{
-		this.setSize(dim);
-		this.setLayout(new BorderLayout());
-		//setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
+		setLayout(new BorderLayout());
+		setSize(dim);
 		
 		constructButtons();
 
@@ -48,13 +39,13 @@ public class Calculator extends JApplet implements ActionListener
 		numericTextField.setEditable(false);
 		numericTextField.setHorizontalAlignment(SwingConstants.RIGHT);
 		numericTextField.setFont(globalFont);
-		this.add(numericTextField, BorderLayout.NORTH);
+		add(numericTextField, BorderLayout.NORTH);
 		
-		JPanel buttonPanel = new JPanel(new GridLayout(4, 4, 4, 4));
+		buttonPanel = new JPanel(new GridLayout(4, 4, 4, 4));
 		for (CalculatorButton button : calcButtons)
 			buttonPanel.add(button);
 		
-		this.add(buttonPanel, BorderLayout.CENTER);
+		add(buttonPanel, BorderLayout.CENTER);
 		
 		setVisible(true);
 		
@@ -95,25 +86,17 @@ public class Calculator extends JApplet implements ActionListener
 		}
 	}
 	
+    public void init() { 
+    	this.setSize(dim);
+    }
+	
 	public void main(String[] args)
 	{
 		Calculator calculator = new Calculator();
 		JFrame calcFrame = new JFrame("Calculator");
-		
 		calcFrame.add(calculator);
-		
-		calcFrame.setSize(dim);
-		
+		calculator.init();
 		calcFrame.setVisible(true);
-		//
-		//
-		//	Doesn't want to obey dimension
-		//
-		//
-		//
-		//
-		//
-		//
 	}
 
 
