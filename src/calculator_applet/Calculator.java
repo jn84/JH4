@@ -8,55 +8,64 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
+
 import javax.swing.JApplet;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import calculator.CalcButtonData;
-import calculator.CalculatorButton;
-
 public class Calculator extends JApplet implements ActionListener
 {
-	private final Font globalFont = new Font("Serif", Font.BOLD, 64);
-	private final Dimension dim = new Dimension(800, 800);
-	
+	private final Font FONT = new Font("Serif", Font.BOLD, 64);
+	private final Dimension DIMEN = new Dimension(800, 800);
+
 	private JPanel buttonPanel = null;
 	private JTextField numericTextField = null;
-	private CalculatorButton[] calcButtons = null;
+	private JButton[] calcButtons = null;
 	private SimpleMath math = new SimpleMath();
-		
+
 	public Calculator()
 	{
 		setLayout(new BorderLayout());
-		setSize(dim);
-		
+		setSize(DIMEN);
+
 		constructButtons();
 
 		numericTextField = new JTextField();
 		numericTextField.setBackground(Color.YELLOW);
 		numericTextField.setEditable(false);
 		numericTextField.setHorizontalAlignment(SwingConstants.RIGHT);
-		numericTextField.setFont(globalFont);
+		numericTextField.setFont(FONT);
 		add(numericTextField, BorderLayout.NORTH);
-		
+
 		buttonPanel = new JPanel(new GridLayout(4, 4, 4, 4));
-		for (CalculatorButton button : calcButtons)
+		for (JButton button : calcButtons)
 			buttonPanel.add(button);
-		
+
 		add(buttonPanel, BorderLayout.CENTER);
-		
+
 		setVisible(true);
-		
+
 		numericTextField.setText(math.getCurrentOutput());
 	}
-	
-	
-	
+
+	private class CalcButtonData
+	{
+		String label = null;
+		Color color = null;
+
+		CalcButtonData(String lbl, Color clr)
+		{
+			this.label = lbl;
+			this.color = clr;
+		}
+	}
+
 	private void constructButtons()
 	{
-		final CalcButtonData[] buttonData = new CalcButtonData[]
+		CalcButtonData[] buttonData = new CalcButtonData[]
 				{
 						new CalcButtonData("0", Color.CYAN),
 						new CalcButtonData("1", Color.CYAN),
@@ -76,20 +85,24 @@ public class Calculator extends JApplet implements ActionListener
 						new CalcButtonData("clear", Color.RED)
 				};
 
-		calcButtons = new CalculatorButton[buttonData.length];
-		
+		calcButtons = new JButton[buttonData.length];
+
 		for (int i = 0; i < buttonData.length; i++)
 		{
-			calcButtons[i] = new CalculatorButton(buttonData[i]);
-			calcButtons[i].setFont(globalFont);
+			calcButtons[i] = new JButton(buttonData[i].label);
+			calcButtons[i].setBackground(buttonData[i].color);
+			calcButtons[i].setFont(FONT);
 			calcButtons[i].addActionListener(this);
 		}
 	}
-	
-    public void init() { 
-    	this.setSize(dim);
-    }
-	
+
+	public void init() 
+	{
+		// For some reason setSize() was ignored/wouldn't work unless I placed it in init()
+		// BasicBoth.java from the Learning Units instructs to put setSize() in main()
+		this.setSize(DIMEN);
+	}
+
 	public void main(String[] args)
 	{
 		Calculator calculator = new Calculator();
@@ -99,37 +112,35 @@ public class Calculator extends JApplet implements ActionListener
 		calcFrame.setVisible(true);
 	}
 
-
-
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		String cmd = ((CalculatorButton)e.getSource()).getText();
+		String cmd = ((JButton)e.getSource()).getText();
 		math.commitCommand(cmd, numericTextField.getText());
 		numericTextField.setText(math.getCurrentOutput());
 	}	
-	
+
 	private class SimpleMath
 	{
 		boolean isResult;
-		
+
 		CommandType lastCommandType = null;
-		
+
 		String currentOutput,
-			   firstNumber, 
-			   secondNumber, 
-			   oper;
-		
+		firstNumber, 
+		secondNumber, 
+		oper;
+
 		public SimpleMath()
 		{
 			clearCommand();
 		}
-		
+
 		public String commitCommand(String command, String value)
 		{
 			if (isResult && command != "clear")
 				return currentOutput;
-			
+
 			switch (command)
 			{
 			case "0":
@@ -144,28 +155,28 @@ public class Calculator extends JApplet implements ActionListener
 			case "9":
 				numberCommand(command, value);
 				return currentOutput;
-				
+
 			case "+":
 			case "-":
 			case "/":
 			case "*":
 				operatorCommand(command, value);
 				return currentOutput;
-				
+
 			case "=":
 				solveCommand(command, value);
 				return currentOutput;
-				
+
 			case "clear":
 				clearCommand();
 				return currentOutput;
-				
-			// Should never be reached. Added to quiet down compiler errors
+
+				// Should never be reached. Added to quiet down compiler errors
 			default:
 				return "0";
 			}
 		}
-		
+
 		private void numberCommand(String command, String value)
 		{
 			// First button pressed (first or second number)
@@ -175,60 +186,61 @@ public class Calculator extends JApplet implements ActionListener
 				lastCommandType = CommandType.NUMBER;
 				return;
 			}
-			
+
 			// Last command was a number -> Append new command to value and update output
 			if (lastCommandType == CommandType.NUMBER)
 				currentOutput = value + command;
 		}
-		
+
 		private void operatorCommand(String command, String value)
 		{
 			if (lastCommandType == null)
 				return;
-			
+
 			// Can change operation type if no other commands were issued
 			if (lastCommandType == CommandType.OPERATOR)
 			{
 				oper = command;
 				return;
 			}
-			
+
 			// If at least one number has been entered and we don't already have an operator
 			if (lastCommandType == CommandType.NUMBER && oper == "")
 			{
 				// Commit the first value
 				firstNumber = value;
-				
+
 				// Commit the operation
 				oper = command;
-				
+
 				lastCommandType = CommandType.OPERATOR;
-				
+
 				// Reset the output to 0
 				currentOutput = "0";
 				return;
 			}
 		}
-		
+
 		private void solveCommand(String command, String value)
 		{
 			// No other commands have been entered, or no operator has been set
 			if (lastCommandType == null || oper == "")
 				return;
-			
+
 			// Commit the second value
 			secondNumber = value;
-			
+
 			// Perform the actual operation
 			performOperation();
-			
+
 			lastCommandType = CommandType.EQUAL;
 		}
-		
+
+		// Reset everything
 		private void clearCommand()
 		{
 			isResult = false;
-			
+
 			lastCommandType = null;
 
 			currentOutput = "0";
@@ -236,17 +248,17 @@ public class Calculator extends JApplet implements ActionListener
 			secondNumber = "0";
 			oper = "";
 		}
-		
+
 		private void performOperation()
 		{
 			BigInteger tempResult = null, 
-					   tempFirst = null, 
-					   tempSecond = null;
-			
+					tempFirst = null, 
+					tempSecond = null;
+
 			// Shouldn't ever throw under normal use
 			try
 			{
-				
+
 				tempFirst = new BigInteger(firstNumber);
 				tempSecond = new BigInteger(secondNumber);
 			}
@@ -279,14 +291,24 @@ public class Calculator extends JApplet implements ActionListener
 			isResult = true;
 			currentOutput = tempResult.toString();
 		}
-		
-		
+
 		public String getCurrentOutput()
 		{
-			return currentOutput;
+			return trimZeros(currentOutput);
 		}
-	}
-	
+
+		// Dumb little trick to clear out any excess leading zeros
+		private String trimZeros(String input)
+		{
+			// Should never throw, but who knows. Keep everything going if it does.
+			try	
+			{
+				return new BigInteger(input).toString();
+			}
+			catch (Exception e) { return input; }
+		}
+	} // end SimpleMath
+
 	private enum CommandType 
 	{
 		NUMBER,

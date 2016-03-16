@@ -8,28 +8,28 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import calculator.CalcButtonData;
-
 public class Calculator extends JFrame implements ActionListener
 {
-	private final Font globalFont = new Font("Serif", Font.BOLD, 64);
-	private final Dimension dim = new Dimension(800, 800);
+	private final Font FONT = new Font("Serif", Font.BOLD, 64);
+	private final Dimension DIMEN = new Dimension(800, 800);
 	
 	private JPanel buttonPanel = null;
 	private JTextField numericTextField = null;
-	private CalculatorButton[] calcButtons = null;
+	private JButton[] calcButtons = null;
 	private SimpleMath math = new SimpleMath();
 	
 		
 	public Calculator()
 	{
 		super("Calcuator Program #4");
-		this.setSize(800, 800);
+		this.setSize(DIMEN);
 		this.setLayout(new BorderLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
@@ -40,11 +40,11 @@ public class Calculator extends JFrame implements ActionListener
 		numericTextField.setBackground(Color.YELLOW);
 		numericTextField.setEditable(false);
 		numericTextField.setHorizontalAlignment(SwingConstants.RIGHT);
-		numericTextField.setFont(globalFont);
+		numericTextField.setFont(FONT);
 		this.add(numericTextField, BorderLayout.NORTH);
 		
 		buttonPanel = new JPanel(new GridLayout(4, 4, 4, 4));
-		for (CalculatorButton button : calcButtons)
+		for (JButton button : calcButtons)
 			buttonPanel.add(button);
 		
 		this.add(buttonPanel, BorderLayout.CENTER);
@@ -54,6 +54,18 @@ public class Calculator extends JFrame implements ActionListener
 		numericTextField.setText(math.getCurrentOutput());
 	}
 	
+	
+	private class CalcButtonData
+	{
+		String label = null;
+		Color color = null;
+		
+		CalcButtonData(String lbl, Color clr)
+		{
+			this.label = lbl;
+			this.color = clr;
+		}
+	}
 	
 	
 	private void constructButtons()
@@ -78,27 +90,27 @@ public class Calculator extends JFrame implements ActionListener
 						new CalcButtonData("clear", Color.RED)
 				};
 
-		calcButtons = new CalculatorButton[buttonData.length];
+		calcButtons = new JButton[buttonData.length];
 		
 		for (int i = 0; i < buttonData.length; i++)
 		{
-			calcButtons[i] = new CalculatorButton(buttonData[i]);
-			calcButtons[i].setFont(globalFont);
+			calcButtons[i] = new JButton(buttonData[i].label);
+			calcButtons[i].setBackground(buttonData[i].color);
+			calcButtons[i].setFont(FONT);
 			calcButtons[i].addActionListener(this);
 		}
 	}
 	
-	public void main(String[] args)
+	public static void main(String[] args)
 	{
 		Calculator calculator = new Calculator();
 	}
 
 
-
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		String cmd = ((CalculatorButton)e.getSource()).getText();
+		String cmd = ((JButton)e.getSource()).getText();
 		math.commitCommand(cmd, numericTextField.getText());
 		numericTextField.setText(math.getCurrentOutput());
 	}	
@@ -219,6 +231,7 @@ public class Calculator extends JFrame implements ActionListener
 			lastCommandType = CommandType.EQUAL;
 		}
 		
+		// Reset everything
 		private void clearCommand()
 		{
 			isResult = false;
@@ -274,12 +287,22 @@ public class Calculator extends JFrame implements ActionListener
 			currentOutput = tempResult.toString();
 		}
 		
-		
 		public String getCurrentOutput()
 		{
-			return currentOutput;
+			return trimZeros(currentOutput);
 		}
-	}
+		
+		// Dumb little trick to clear out any excess leading zeros
+		private String trimZeros(String input)
+		{
+			// Should never throw, but who knows. Keep everything going if it does.
+			try	
+			{
+				return new BigInteger(input).toString();
+			}
+			catch (Exception e) { return input; }
+		}
+	} // End SimpleMath
 	
 	private enum CommandType 
 	{
