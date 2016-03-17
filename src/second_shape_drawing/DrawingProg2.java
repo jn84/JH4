@@ -7,8 +7,10 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -17,63 +19,87 @@ import javax.swing.JRadioButton;
 public class DrawingProg2 extends JFrame implements ActionListener
 {
 	private final Dimension DIMEN = new Dimension(800,  400);
-	private final Color defaultColor = Color.red;
-	private final DrawType defaultShape = DrawType.rectangle;
+	private final String defaultColor = "Red";
+	private final String defaultShape = "Rectangle";
 
 	DrawingPanel drawingPanel = new DrawingPanel();
 	JPanel shapePanel = null;
 	JPanel colorPanel = null;
+	ArrayList<JRadioButton> shapeButtons = null;
+	ArrayList<JRadioButton> colorButtons = null;
 	JCheckBox filled = new JCheckBox("filled");
 
 	DrawingProg2()
 	{
 		super("My Drawing Program");
 
-		String[] colors = {"Red", "Green", "Blue"};
-		String[] shapes1 = {"Rectangle", "Oval", "Line", "Scribble", "Polygon"};
+		String[] colors = { "Red", "Green", "Blue" };
+		String[] shapes = { "Rectangle", "Oval", "Line", "Scribble", "Polygon" };
 
 		setSize(DIMEN);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		layout(shapes1, colors);
+		layout(shapes, colors);
 
 		setVisible(true);
 	}
 
 	private void layout(String[] shapes, String[] colors)
 	{
-		// set defaults
-		// How to preselect the associated radio buttons in a simple way?
-		//		Without extensive code modification.
-		drawingPanel.drawing.setColor(defaultColor);
-		drawingPanel.drawing.setDrawType(defaultShape);
-
 		setLayout(new BorderLayout());
 
+		// Construct shapePanel
 		shapePanel = new JPanel(new FlowLayout());
+		shapeButtons = new ArrayList<>(shapes.length);
 		filled.addActionListener(this);
 		shapePanel.add(filled);
-		buildPanel(shapePanel, shapes);
+		buildPanel(shapeButtons, shapePanel, shapes);
 
+		// Construct colorPanel
 		colorPanel =  new JPanel(new GridLayout(0, 1));
-		buildPanel(colorPanel, colors);
+		colorButtons = new ArrayList<>(colors.length);
+		buildPanel(colorButtons, colorPanel, colors);
 
 		this.add(drawingPanel, BorderLayout.CENTER);
 		this.add(shapePanel, BorderLayout.NORTH);
 		this.add(colorPanel, BorderLayout.WEST);
+		
+		// My routine to make sure the default values are preselected.
+		// Depends on getIndexOf method and the buttons being in an array
+		try
+		{
+			shapeButtons.get(getIndexOf(shapes, defaultShape)).doClick();
+			colorButtons.get(getIndexOf(colors, defaultColor)).doClick();
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			// Default values not set properly, or default value does not exist.
+			// Keep going without setting default values.
+			// No need to notify user.
+		}
 	}
 
 	// Simple method to reduce repetition
-	private void buildPanel(JPanel jp, String[] buttonList)
+	private void buildPanel(ArrayList<JRadioButton> buttonList, JPanel jp, String[] buttonLabels)
 	{
 		ButtonGroup buttonGroup = new ButtonGroup();
-		for (String elem : buttonList)
+		for (String elem : buttonLabels)
 		{
 			JRadioButton tempRadio = new JRadioButton(elem);
 			tempRadio.addActionListener(this);
 			buttonGroup.add(tempRadio);
 			jp.add(tempRadio);
+			buttonList.add(tempRadio);
 		}
+	}
+	
+	// Helper method to get the index of a value in an array
+	private <T> int getIndexOf(T[] arr, T value)
+	{
+		for (int i = 0; i < arr.length; i++)
+			if (value == arr[i])
+				return i;
+		return -1;				// not found
 	}
 
 	public static void main(String[] args) 
@@ -88,7 +114,7 @@ public class DrawingProg2 extends JFrame implements ActionListener
 		// 	Not really necessary in this case, but this way I don't have to worry
 		// about casing issues.
 		String action = actionEvent.getActionCommand().toLowerCase();
-
+		
 		switch(action)
 		{
 		case "red":
