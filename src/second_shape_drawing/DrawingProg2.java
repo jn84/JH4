@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;

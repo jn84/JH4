@@ -17,7 +17,7 @@ import javax.swing.SwingConstants;
 
 public class Calculator extends JFrame implements ActionListener
 {
-	private final Font FONT = new Font("Serif", Font.BOLD, 64);
+	private final Font FONT = new Font("Serif", Font.BOLD, 32);
 	private final Dimension DIMEN = new Dimension(800, 800);
 	
 	private JPanel buttonPanel = null;
@@ -114,28 +114,28 @@ public class Calculator extends JFrame implements ActionListener
 		math.commitCommand(cmd, numericTextField.getText());
 		numericTextField.setText(math.getCurrentOutput());
 	}	
-	
+
 	private class SimpleMath
 	{
 		boolean isResult;
-		
+
 		CommandType lastCommandType = null;
-		
+
 		String currentOutput,
-			   firstNumber, 
-			   secondNumber, 
-			   oper;
-		
+		firstNumber, 
+		secondNumber, 
+		oper;
+
 		public SimpleMath()
 		{
 			clearCommand();
 		}
-		
+
 		public String commitCommand(String command, String value)
 		{
 			if (isResult && command != "clear")
 				return currentOutput;
-			
+
 			switch (command)
 			{
 			case "0":
@@ -150,28 +150,28 @@ public class Calculator extends JFrame implements ActionListener
 			case "9":
 				numberCommand(command, value);
 				return currentOutput;
-				
+
 			case "+":
 			case "-":
 			case "/":
 			case "*":
 				operatorCommand(command, value);
 				return currentOutput;
-				
+
 			case "=":
 				solveCommand(command, value);
 				return currentOutput;
-				
+
 			case "clear":
 				clearCommand();
 				return currentOutput;
-				
-			// Should never be reached. Added to quiet down compiler errors
+
+				// Should never be reached. Added to quiet down compiler errors
 			default:
 				return "0";
 			}
 		}
-		
+
 		private void numberCommand(String command, String value)
 		{
 			// First button pressed (first or second number)
@@ -181,61 +181,61 @@ public class Calculator extends JFrame implements ActionListener
 				lastCommandType = CommandType.NUMBER;
 				return;
 			}
-			
+
 			// Last command was a number -> Append new command to value and update output
 			if (lastCommandType == CommandType.NUMBER)
 				currentOutput = value + command;
 		}
-		
+
 		private void operatorCommand(String command, String value)
 		{
 			if (lastCommandType == null)
 				return;
-			
+
 			// Can change operation type if no other commands were issued
 			if (lastCommandType == CommandType.OPERATOR)
 			{
 				oper = command;
 				return;
 			}
-			
+
 			// If at least one number has been entered and we don't already have an operator
 			if (lastCommandType == CommandType.NUMBER && oper == "")
 			{
 				// Commit the first value
 				firstNumber = value;
-				
+
 				// Commit the operation
 				oper = command;
-				
+
 				lastCommandType = CommandType.OPERATOR;
-				
+
 				// Reset the output to 0
 				currentOutput = "0";
 				return;
 			}
 		}
-		
+
 		private void solveCommand(String command, String value)
 		{
 			// No other commands have been entered, or no operator has been set
 			if (lastCommandType == null || oper == "")
 				return;
-			
+
 			// Commit the second value
 			secondNumber = value;
-			
+
 			// Perform the actual operation
 			performOperation();
-			
+
 			lastCommandType = CommandType.EQUAL;
 		}
-		
+
 		// Reset everything
 		private void clearCommand()
 		{
 			isResult = false;
-			
+
 			lastCommandType = null;
 
 			currentOutput = "0";
@@ -243,17 +243,17 @@ public class Calculator extends JFrame implements ActionListener
 			secondNumber = "0";
 			oper = "";
 		}
-		
+
 		private void performOperation()
 		{
 			BigInteger tempResult = null, 
-					   tempFirst = null, 
-					   tempSecond = null;
-			
+					tempFirst = null, 
+					tempSecond = null;
+
 			// Shouldn't ever throw under normal use
 			try
 			{
-				
+
 				tempFirst = new BigInteger(firstNumber);
 				tempSecond = new BigInteger(secondNumber);
 			}
@@ -286,12 +286,12 @@ public class Calculator extends JFrame implements ActionListener
 			isResult = true;
 			currentOutput = tempResult.toString();
 		}
-		
+
 		public String getCurrentOutput()
 		{
 			return trimZeros(currentOutput);
 		}
-		
+
 		// Dumb little trick to clear out any excess leading zeros
 		private String trimZeros(String input)
 		{
@@ -302,8 +302,8 @@ public class Calculator extends JFrame implements ActionListener
 			}
 			catch (Exception e) { return input; }
 		}
-	} // End SimpleMath
-	
+	} // end SimpleMath
+
 	private enum CommandType 
 	{
 		NUMBER,

@@ -18,8 +18,8 @@ import javax.swing.SwingConstants;
 
 public class Calculator extends JApplet implements ActionListener
 {
-	private final Font FONT = new Font("Serif", Font.BOLD, 64);
-	private final Dimension DIMEN = new Dimension(800, 800);
+	private final Font FONT = new Font("Serif", Font.BOLD, 32);
+	private final static Dimension DIMEN = new Dimension(800, 800);
 
 	private JPanel buttonPanel = null;
 	private JTextField numericTextField = null;
@@ -103,10 +103,11 @@ public class Calculator extends JApplet implements ActionListener
 		this.setSize(DIMEN);
 	}
 
-	public void main(String[] args)
+	public static void main(String[] args)
 	{
 		Calculator calculator = new Calculator();
 		JFrame calcFrame = new JFrame("Calculator");
+		calcFrame.setSize(DIMEN);
 		calcFrame.add(calculator);
 		calculator.init();
 		calcFrame.setVisible(true);
